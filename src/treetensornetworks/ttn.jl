@@ -24,7 +24,7 @@ function data_graph_type(G::Type{<:TTN})
   return data_graph_type(fieldtype(G, :itensor_network))
 end
 
-function copy(ψ::TTN)
+function Base.copy(ψ::TTN)
   return TTN(copy(ψ.itensor_network), copy(ψ.ortho_center))
 end
 

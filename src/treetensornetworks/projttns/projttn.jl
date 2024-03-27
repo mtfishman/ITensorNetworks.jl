@@ -1,3 +1,9 @@
+using DataGraphs: DataGraphs, underlying_graph
+using Dictionaries: Dictionary
+using Graphs: edgetype, vertices
+using ITensors: ITensor
+using NamedGraphs: NamedEdge, incident_edges
+
 """
 ProjTTN
 """
@@ -11,12 +17,12 @@ function ProjTTN(operator::TTN)
   return ProjTTN(vertices(operator), operator, Dictionary{edgetype(operator),ITensor}())
 end
 
-copy(P::ProjTTN) = ProjTTN(pos(P), copy(operator(P)), copy(environments(P)))
+Base.copy(P::ProjTTN) = ProjTTN(pos(P), copy(operator(P)), copy(environments(P)))
 
 #accessors for fields
 environments(p::ProjTTN) = p.environments
 operator(p::ProjTTN) = p.operator
-underlying_graph(P::ProjTTN) = underlying_graph(operator(P))
+DataGraphs.underlying_graph(P::ProjTTN) = underlying_graph(operator(P))
 pos(P::ProjTTN) = P.pos
 
 # trivial if we choose to specify position as above; only kept to allow using alongside

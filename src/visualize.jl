@@ -1,5 +1,9 @@
-# ITensorVisualizationBase overload
-function visualize(
+using DataGraphs: AbstractDataGraph, underlying_graph
+using Graphs: vertices
+using ITensors.ITensorVisualizationCore: ITensorVisualizationCore, visualize
+using NamedGraphs: AbstractNamedGraph, parent_graph
+
+function ITensorVisualizationCore.visualize(
   graph::AbstractNamedGraph,
   args...;
   vertex_labels_prefix=nothing,
@@ -13,7 +17,6 @@ function visualize(
   return visualize(parent_graph(graph), args...; vertex_labels, kwargs...)
 end
 
-# ITensorVisualizationBase overload
-function visualize(graph::AbstractDataGraph, args...; kwargs...)
+function ITensorVisualizationCore.visualize(graph::AbstractDataGraph, args...; kwargs...)
   return visualize(underlying_graph(graph), args...; kwargs...)
 end

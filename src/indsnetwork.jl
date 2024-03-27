@@ -1,3 +1,9 @@
+using DataGraphs: DataGraphs, vertex_data
+using Graphs: Graphs
+using ITensors: Index, dag
+using ITensors.ITensorVisualizationCore: ITensorVisualizationCore, visualize
+using NamedGraphs: NamedGraphs, NamedEdge, NamedGraph, vertextype
+
 struct IndsNetwork{V,I} <: AbstractIndsNetwork{V,I}
   data_graph::DataGraph{V,Vector{I},Vector{I},NamedGraph{V},NamedEdge{V}}
   global function _IndsNetwork(V::Type, I::Type, g::DataGraph)
@@ -7,10 +13,10 @@ end
 indtype(inds_network::IndsNetwork) = indtype(typeof(inds_network))
 indtype(::Type{<:IndsNetwork{V,I}}) where {V,I} = I
 data_graph(is::IndsNetwork) = is.data_graph
-underlying_graph(is::IndsNetwork) = underlying_graph(data_graph(is))
-vertextype(::Type{<:IndsNetwork{V}}) where {V} = V
-underlying_graph_type(G::Type{<:IndsNetwork}) = NamedGraph{vertextype(G)}
-is_directed(::Type{<:IndsNetwork}) = false
+DataGraphs.underlying_graph(is::IndsNetwork) = underlying_graph(data_graph(is))
+NamedGraphs.vertextype(::Type{<:IndsNetwork{V}}) where {V} = V
+DataGraphs.underlying_graph_type(G::Type{<:IndsNetwork}) = NamedGraph{vertextype(G)}
+Graphs.is_directed(::Type{<:IndsNetwork}) = false
 
 #
 # Constructor
@@ -300,7 +306,7 @@ end
 # Utility
 #
 
-copy(is::IndsNetwork) = IndsNetwork(copy(data_graph(is)))
+Base.copy(is::IndsNetwork) = IndsNetwork(copy(data_graph(is)))
 
 function map_inds(f, is::IndsNetwork, args...; sites=nothing, links=nothing, kwargs...)
   return map_data(i -> f(i, args...; kwargs...), is; vertices=sites, edges=links)
@@ -310,6 +316,6 @@ end
 # Visualization
 #
 
-function visualize(is::IndsNetwork, args...; kwargs...)
+function ITensorVisualizationCore.visualize(is::IndsNetwork, args...; kwargs...)
   return visualize(ITensorNetwork(is), args...; kwargs...)
 end

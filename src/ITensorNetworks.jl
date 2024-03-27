@@ -1,8 +1,5 @@
 module ITensorNetworks
 
-using AbstractTrees
-using Combinatorics
-using Compat
 using DataGraphs
 using DataStructures
 using Dictionaries
@@ -31,7 +28,6 @@ using SplitApplyCombine
 using StaticArrays
 using Suppressor
 using TimerOutputs
-using StructWalk: StructWalk, WalkStyle, postwalk
 
 using DataGraphs: IsUnderlyingGraph, edge_data_type, vertex_data_type
 using Graphs: AbstractEdge, AbstractGraph, Graph, add_edge!
@@ -48,23 +44,13 @@ using ITensors:
   orthocenter
 using KrylovKit: exponentiate, eigsolve, linsolve
 using NamedGraphs:
-  AbstractNamedGraph,
-  parent_graph,
-  vertex_to_parent_vertex,
-  parent_vertices_to_vertices,
-  not_implemented
+  AbstractNamedGraph, parent_graph, parent_vertices_to_vertices, not_implemented
 
+# TODO: Delete this.
 include("imports.jl")
 
-# TODO: Move to `DataGraphs.jl`
-edge_data_type(::AbstractNamedGraph) = Any
-isassigned(::AbstractNamedGraph, ::Any) = false
-function iterate(::AbstractDataGraph)
-  return error(
-    "Iterating data graphs is not yet defined. We may define it in the future as iterating through the vertex and edge data.",
-  )
-end
-
+include("Graphs/abstractgraph.jl")
+include("Graphs/abstractdatagraph.jl")
 include("observers.jl")
 include("visualize.jl")
 include("graphs.jl")
@@ -82,53 +68,51 @@ include("tebd.jl")
 include("itensornetwork.jl")
 include("mincut.jl")
 include("contract_deltas.jl")
-include(joinpath("approx_itensornetwork", "utils.jl"))
-include(joinpath("approx_itensornetwork", "density_matrix.jl"))
-include(joinpath("approx_itensornetwork", "ttn_svd.jl"))
-include(joinpath("approx_itensornetwork", "approx_itensornetwork.jl"))
-include(joinpath("approx_itensornetwork", "partition.jl"))
-include(joinpath("approx_itensornetwork", "binary_tree_partition.jl"))
+include("approx_itensornetwork/utils.jl")
+include("approx_itensornetwork/density_matrix.jl")
+include("approx_itensornetwork/ttn_svd.jl")
+include("approx_itensornetwork/approx_itensornetwork.jl")
+include("approx_itensornetwork/partition.jl")
+include("approx_itensornetwork/binary_tree_partition.jl")
 include("contract.jl")
 include("utility.jl")
 include("specialitensornetworks.jl")
 include("boundarymps.jl")
 include("partitioneditensornetwork.jl")
 include("edge_sequences.jl")
-include(joinpath("formnetworks", "abstractformnetwork.jl"))
-include(joinpath("formnetworks", "bilinearformnetwork.jl"))
-include(joinpath("formnetworks", "quadraticformnetwork.jl"))
-include(joinpath("caches", "beliefpropagationcache.jl"))
+include("formnetworks/abstractformnetwork.jl")
+include("formnetworks/bilinearformnetwork.jl")
+include("formnetworks/quadraticformnetwork.jl")
+include("caches/beliefpropagationcache.jl")
 include("contraction_tree_to_graph.jl")
 include("gauging.jl")
 include("utils.jl")
 include("tensornetworkoperators.jl")
-include(joinpath("ITensorsExt", "itensorutils.jl"))
-include(joinpath("Graphs", "abstractgraph.jl"))
-include(joinpath("Graphs", "abstractdatagraph.jl"))
-include(joinpath("solvers", "local_solvers", "eigsolve.jl"))
-include(joinpath("solvers", "local_solvers", "exponentiate.jl"))
-include(joinpath("solvers", "local_solvers", "dmrg_x.jl"))
-include(joinpath("solvers", "local_solvers", "contract.jl"))
-include(joinpath("solvers", "local_solvers", "linsolve.jl"))
-include(joinpath("treetensornetworks", "abstracttreetensornetwork.jl"))
-include(joinpath("treetensornetworks", "ttn.jl"))
-include(joinpath("treetensornetworks", "opsum_to_ttn.jl"))
-include(joinpath("treetensornetworks", "projttns", "abstractprojttn.jl"))
-include(joinpath("treetensornetworks", "projttns", "projttn.jl"))
-include(joinpath("treetensornetworks", "projttns", "projttnsum.jl"))
-include(joinpath("treetensornetworks", "projttns", "projouterprodttn.jl"))
-include(joinpath("solvers", "solver_utils.jl"))
-include(joinpath("solvers", "defaults.jl"))
-include(joinpath("solvers", "insert", "insert.jl"))
-include(joinpath("solvers", "extract", "extract.jl"))
-include(joinpath("solvers", "alternating_update", "alternating_update.jl"))
-include(joinpath("solvers", "alternating_update", "region_update.jl"))
-include(joinpath("solvers", "tdvp.jl"))
-include(joinpath("solvers", "dmrg.jl"))
-include(joinpath("solvers", "dmrg_x.jl"))
-include(joinpath("solvers", "contract.jl"))
-include(joinpath("solvers", "linsolve.jl"))
-include(joinpath("solvers", "sweep_plans", "sweep_plans.jl"))
+include("ITensorsExt/itensorutils.jl")
+include("solvers/local_solvers/eigsolve.jl")
+include("solvers/local_solvers/exponentiate.jl")
+include("solvers/local_solvers/dmrg_x.jl")
+include("solvers/local_solvers/contract.jl")
+include("solvers/local_solvers/linsolve.jl")
+include("treetensornetworks/abstracttreetensornetwork.jl")
+include("treetensornetworks/ttn.jl")
+include("treetensornetworks/opsum_to_ttn.jl")
+include("treetensornetworks/projttns/abstractprojttn.jl")
+include("treetensornetworks/projttns/projttn.jl")
+include("treetensornetworks/projttns/projttnsum.jl")
+include("treetensornetworks/projttns/projouterprodttn.jl")
+include("solvers/solver_utils.jl")
+include("solvers/defaults.jl")
+include("solvers/insert/insert.jl")
+include("solvers/extract/extract.jl")
+include("solvers/alternating_update/alternating_update.jl")
+include("solvers/alternating_update/region_update.jl")
+include("solvers/tdvp.jl")
+include("solvers/dmrg.jl")
+include("solvers/dmrg_x.jl")
+include("solvers/contract.jl")
+include("solvers/linsolve.jl")
+include("solvers/sweep_plans/sweep_plans.jl")
 include("apply.jl")
 include("environment.jl")
 
@@ -137,7 +121,7 @@ include("exports.jl")
 function __init__()
   @require_extensions
   @require OMEinsumContractionOrders = "6f22d1fd-8eed-4bb7-9776-e7d684900715" include(
-    joinpath("requires", "omeinsumcontractionorders.jl")
+    "requires/omeinsumcontractionorders.jl"
   )
 end
 

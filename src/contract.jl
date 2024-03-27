@@ -1,3 +1,9 @@
+using NamedGraphs: vertex_to_parent_vertex
+using ITensors: ITensor, contract
+using ITensors.ContractionSequenceOptimization: deepmap
+using ITensors.NDTensors: Algorithm, @Algorithm_str
+using LinearAlgebra: normalize!
+
 function contract(tn::AbstractITensorNetwork; alg::String="exact", kwargs...)
   return contract(Algorithm(alg), tn; kwargs...)
 end

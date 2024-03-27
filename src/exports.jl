@@ -32,7 +32,7 @@ export Key,
   post_order_dfs_edges,
   leaf_vertices,
   is_leaf,
-  incident_edges,
+  incident_edges, # TODO: Remove this export.
   comb_tree,
   named_comb_tree,
   subgraph,
@@ -81,7 +81,6 @@ export AbstractITensorNetwork,
   ProjOuterProdTTN,
   set_nsite,
   position,
-  finite_state_machine,
   # contraction_sequences.jl
   contraction_sequence,
   # utils.jl

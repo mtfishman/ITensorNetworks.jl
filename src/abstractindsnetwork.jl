@@ -1,14 +1,23 @@
+using DataGraphs: DataGraphs, AbstractDataGraph, edge_data, edge_data_type, vertex_data
+using Graphs: Graphs
+using ITensors: ITensors, unioninds, uniqueinds
+using NamedGraphs: NamedGraphs, incident_edges, rename_vertices
+
 abstract type AbstractIndsNetwork{V,I} <: AbstractDataGraph{V,Vector{I},Vector{I}} end
 
 # Field access
 data_graph(graph::AbstractIndsNetwork) = not_implemented()
 
 # Overload if needed
-is_directed(::Type{<:AbstractIndsNetwork}) = false
+Graphs.is_directed(::Type{<:AbstractIndsNetwork}) = false
 
 # AbstractDataGraphs overloads
-vertex_data(graph::AbstractIndsNetwork, args...) = vertex_data(data_graph(graph), args...)
-edge_data(graph::AbstractIndsNetwork, args...) = edge_data(data_graph(graph), args...)
+function DataGraphs.vertex_data(graph::AbstractIndsNetwork, args...)
+  return vertex_data(data_graph(graph), args...)
+end
+function DataGraphs.edge_data(graph::AbstractIndsNetwork, args...)
+  return edge_data(data_graph(graph), args...)
+end
 
 # TODO: Define a generic fallback for `AbstractDataGraph`?
 edge_data_type(::Type{<:AbstractIndsNetwork{V,I}}) where {V,I} = Vector{I}
@@ -17,7 +26,7 @@ edge_data_type(::Type{<:AbstractIndsNetwork{V,I}}) where {V,I} = Vector{I}
 # Index access
 # 
 
-function uniqueinds(is::AbstractIndsNetwork, edge::AbstractEdge)
+function ITensors.uniqueinds(is::AbstractIndsNetwork, edge::AbstractEdge)
   inds = IndexSet(get(is, src(edge), Index[]))
   for ei in setdiff(incident_edges(is, src(edge)), [edge])
     inds = unioninds(inds, get(is, ei, Index[]))
@@ -25,15 +34,15 @@ function uniqueinds(is::AbstractIndsNetwork, edge::AbstractEdge)
   return inds
 end
 
-function uniqueinds(is::AbstractIndsNetwork, edge::Pair)
+function ITensors.uniqueinds(is::AbstractIndsNetwork, edge::Pair)
   return uniqueinds(is, edgetype(is)(edge))
 end
 
-function union(tn1::AbstractIndsNetwork, tn2::AbstractIndsNetwork; kwargs...)
+function Base.union(tn1::AbstractIndsNetwork, tn2::AbstractIndsNetwork; kwargs...)
   return IndsNetwork(union(data_graph(tn1), data_graph(tn2); kwargs...))
 end
 
-function rename_vertices(f::Function, tn::AbstractIndsNetwork)
+function NamedGraphs.rename_vertices(f::Function, tn::AbstractIndsNetwork)
   return IndsNetwork(rename_vertices(f, data_graph(tn)))
 end
 

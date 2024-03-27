@@ -1,3 +1,8 @@
+using NamedGraphs: Key
+using ITensors: ITensors, Index, ITensor, QN, inds, op, replaceinds, uniqueinds
+using ITensors.NDTensors: NDTensors
+using Dictionaries: Dictionary
+
 # Tensor sum: `A ⊞ B = A ⊗ Iᴮ + Iᴬ ⊗ B`
 # https://github.com/JuliaLang/julia/issues/13333#issuecomment-143825995
 # "PRESERVATION OF TENSOR SUM AND TENSOR PRODUCT"
@@ -59,8 +64,8 @@ function ITensors.replaceinds(tensor::ITensor, ind_to_newind::Dict{<:Index,<:Ind
   return replaceinds(tensor, subset_inds => out_inds)
 end
 
-is_delta(it::ITensor) = is_delta(ITensors.tensor(it))
-is_delta(t::ITensors.Tensor) = false
-function is_delta(t::ITensors.NDTensors.UniformDiagTensor)
-  return isone(ITensors.NDTensors.getdiagindex(t, 1))
+is_delta(it::ITensor) = is_delta(NDTensors.tensor(it))
+is_delta(t::NDTensors.Tensor) = false
+function is_delta(t::NDTensors.UniformDiagTensor)
+  return isone(NDTensors.getdiagindex(t, 1))
 end

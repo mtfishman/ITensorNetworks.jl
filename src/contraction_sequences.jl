@@ -1,3 +1,9 @@
+using Graphs: vertices
+using ITensors: ITensor, contract
+using ITensors.ContractionSequenceOptimization: deepmap, optimal_contraction_sequence
+using ITensors.NDTensors: Algorithm, @Algorithm_str
+using NamedGraphs: Key
+
 function contraction_sequence(tn::Vector{ITensor}; alg="optimal", kwargs...)
   return contraction_sequence(Algorithm(alg), tn; kwargs...)
 end

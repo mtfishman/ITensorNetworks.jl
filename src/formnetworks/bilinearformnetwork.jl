@@ -34,7 +34,7 @@ tensornetwork(blf::BilinearFormNetwork) = blf.tensornetwork
 data_graph_type(::Type{<:BilinearFormNetwork}) = data_graph_type(tensornetwork(blf))
 data_graph(blf::BilinearFormNetwork) = data_graph(tensornetwork(blf))
 
-function copy(blf::BilinearFormNetwork)
+function Base.copy(blf::BilinearFormNetwork)
   return BilinearFormNetwork(
     copy(tensornetwork(blf)),
     operator_vertex_suffix(blf),

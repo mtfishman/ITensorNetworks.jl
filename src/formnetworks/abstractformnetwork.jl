@@ -7,7 +7,7 @@ abstract type AbstractFormNetwork{V} <: AbstractITensorNetwork{V} end
 #Needed for interface
 dual_index_map(f::AbstractFormNetwork) = not_implemented()
 tensornetwork(f::AbstractFormNetwork) = not_implemented()
-copy(f::AbstractFormNetwork) = not_implemented()
+Base.copy(f::AbstractFormNetwork) = not_implemented()
 operator_vertex_suffix(f::AbstractFormNetwork) = not_implemented()
 bra_vertex_suffix(f::AbstractFormNetwork) = not_implemented()
 ket_vertex_suffix(f::AbstractFormNetwork) = not_implemented()

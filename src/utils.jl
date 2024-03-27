@@ -33,6 +33,7 @@ end
 
 extend_or_truncate(x, length::Int) = extend_or_truncate([x], length)
 
+using StructWalk: StructWalk, WalkStyle, postwalk
 # Treat `AbstractArray` as leaves.
 
 struct AbstractArrayLeafStyle <: WalkStyle end

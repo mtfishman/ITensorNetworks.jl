@@ -1,3 +1,8 @@
+using DataGraphs: DataGraph
+using ITensors: Index, ITensor, delta, noncommoninds, replaceinds, sim
+using ITensors.NDTensors: Algorithm, @Algorithm_str
+using NamedGraphs: disjoint_union, rename_vertices, subgraph
+
 function _binary_partition(tn::ITensorNetwork, source_inds::Vector{<:Index})
   external_inds = noncommoninds(Vector{ITensor}(tn)...)
   # add delta tensor to each external ind

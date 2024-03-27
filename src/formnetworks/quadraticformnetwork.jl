@@ -28,7 +28,7 @@ end
 
 dual_index_map(qf::QuadraticFormNetwork) = qf.dual_index_map
 dual_inv_index_map(qf::QuadraticFormNetwork) = qf.dual_inv_index_map
-function copy(qf::QuadraticFormNetwork)
+function Base.copy(qf::QuadraticFormNetwork)
   return QuadraticFormNetwork(
     copy(bilinear_formnetwork(qf)), dual_index_map(qf), dual_inv_index_map(qf)
   )
