@@ -20,13 +20,12 @@ using SplitApplyCombine
 
 @testset "FormNetworks" begin
   g = named_grid((1, 4))
-  s_ket = siteinds("S=1/2", g)
-  s_bra = prime(s_ket; links=[])
-  s_operator = union_all_inds(s_bra, s_ket)
+  s = siteinds("S=1/2", g)
+  s_operator = union_all_inds(s, prime(s))
   χ, D = 2, 3
   Random.seed!(1234)
-  ψket = randomITensorNetwork(s_ket; link_space=χ)
-  ψbra = randomITensorNetwork(s_bra; link_space=χ)
+  ψket = randomITensorNetwork(s; link_space=χ)
+  ψbra = randomITensorNetwork(s; link_space=χ)
   A = randomITensorNetwork(s_operator; link_space=D)
 
   blf = BilinearFormNetwork(A, ψbra, ψket)

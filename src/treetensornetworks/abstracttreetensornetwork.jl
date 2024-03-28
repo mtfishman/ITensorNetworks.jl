@@ -232,7 +232,7 @@ function logdot(ψ1::TTNT, ψ2::TTNT; kwargs...) where {TTNT<:AbstractTTN}
   return loginner(ψ1, ψ2; kwargs...)
 end
 
-# TODO: stick with this traversal or find optimal contraction sequence?
+#TODO: stick with this traversal or find optimal contraction sequence?
 function loginner(
   ψ1::TTNT, ψ2::TTNT; root_vertex=default_root_vertex(ψ1, ψ2)
 )::Number where {TTNT<:AbstractTTN}

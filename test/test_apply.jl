@@ -1,11 +1,6 @@
 using ITensorNetworks
 using ITensorNetworks:
-  environment,
-  update,
-  contract_inner,
-  norm_network,
-  BeliefPropagationCache,
-  VidalITensorNetwork
+  environment, update, inner, norm_sqr_network, BeliefPropagationCache, VidalITensorNetwork
 using Test
 using Compat
 using ITensors
@@ -24,7 +19,7 @@ using SplitApplyCombine
   χ = 2
   ψ = randomITensorNetwork(s; link_space=χ)
   v1, v2 = (2, 2), (1, 2)
-  ψψ = norm_network(ψ)
+  ψψ = norm_sqr_network(ψ)
 
   #Simple Belief Propagation Grouping
   bp_cache = BeliefPropagationCache(ψψ, group(v -> v[1], vertices(ψψ)))
@@ -64,15 +59,11 @@ using SplitApplyCombine
       print_fidelity_loss=true,
       envisposdef=true,
     )
-    fSBP =
-      contract_inner(ψOSBP, ψOexact) /
-      sqrt(contract_inner(ψOexact, ψOexact) * contract_inner(ψOSBP, ψOSBP))
+    fSBP = inner(ψOSBP, ψOexact) / sqrt(inner(ψOexact, ψOexact) * inner(ψOSBP, ψOSBP))
     fVidal =
-      contract_inner(ψOVidal_symm, ψOexact) /
-      sqrt(contract_inner(ψOexact, ψOexact) * contract_inner(ψOVidal_symm, ψOVidal_symm))
-    fGBP =
-      contract_inner(ψOGBP, ψOexact) /
-      sqrt(contract_inner(ψOexact, ψOexact) * contract_inner(ψOGBP, ψOGBP))
+      inner(ψOVidal_symm, ψOexact) /
+      sqrt(inner(ψOexact, ψOexact) * inner(ψOVidal_symm, ψOVidal_symm))
+    fGBP = inner(ψOGBP, ψOexact) / sqrt(inner(ψOexact, ψOexact) * inner(ψOGBP, ψOGBP))
 
     @test real(fGBP * conj(fGBP)) >= real(fSBP * conj(fSBP))
 

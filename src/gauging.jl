@@ -20,7 +20,7 @@ function copy(ψ::VidalITensorNetwork)
 end
 
 function default_norm_cache(ψ::ITensorNetwork)
-  ψψ = norm_network(ψ)
+  ψψ = norm_sqr_network(ψ)
   return BeliefPropagationCache(ψψ, group(v -> v[1], vertices(ψψ)))
 end
 

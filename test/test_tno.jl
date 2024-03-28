@@ -3,7 +3,7 @@ using ITensorNetworks
 using ITensors
 using Random
 
-using ITensorNetworks: gate_group_to_tno, get_tnos, group_commuting_itensors, contract_inner
+using ITensorNetworks: gate_group_to_tno, get_tnos, group_commuting_itensors, inner
 
 @testset "TN operator Basics" begin
   L = 3
@@ -42,12 +42,12 @@ using ITensorNetworks: gate_group_to_tno, get_tnos, group_commuting_itensors, co
     noprime!(ψ_tno[v])
   end
 
-  z1 = contract_inner(ψ_gated, ψ_gated)
-  z2 = contract_inner(ψ_tnod, ψ_tnod)
-  z3 = contract_inner(ψ_tno, ψ_tno)
-  f12 = contract_inner(ψ_tnod, ψ_gated) / sqrt(z1 * z2)
-  f13 = contract_inner(ψ_tno, ψ_gated) / sqrt(z1 * z3)
-  f23 = contract_inner(ψ_tno, ψ_tnod) / sqrt(z2 * z3)
+  z1 = inner(ψ_gated, ψ_gated)
+  z2 = inner(ψ_tnod, ψ_tnod)
+  z3 = inner(ψ_tno, ψ_tno)
+  f12 = inner(ψ_tnod, ψ_gated) / sqrt(z1 * z2)
+  f13 = inner(ψ_tno, ψ_gated) / sqrt(z1 * z3)
+  f23 = inner(ψ_tno, ψ_tnod) / sqrt(z2 * z3)
   @test f12 * conj(f12) ≈ 1.0
   @test f13 * conj(f13) ≈ 1.0
   @test f23 * conj(f23) ≈ 1.0

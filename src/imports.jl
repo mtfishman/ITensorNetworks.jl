@@ -93,6 +93,7 @@ import ITensors:
   nsite,
   # promotion and conversion
   promote_itensor_eltype,
+  scalar,
   scalartype,
   #adding
   add

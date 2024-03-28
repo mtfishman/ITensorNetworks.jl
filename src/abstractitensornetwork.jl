@@ -635,97 +635,36 @@ function split_index(
   return tn
 end
 
-function flatten_networks(
-  tn1::AbstractITensorNetwork,
-  tn2::AbstractITensorNetwork;
-  map_bra_linkinds=sim,
-  flatten=true,
-  combine_linkinds=true,
-  kwargs...,
-)
-  @assert issetequal(vertices(tn1), vertices(tn2))
-  tn1 = map_bra_linkinds(tn1; sites=[])
-  flattened_net = ⊗(tn1, tn2; kwargs...)
-  if flatten
-    for v in vertices(tn1)
-      flattened_net = contract(flattened_net, (v, 2) => (v, 1); merged_vertex=v)
-    end
-  end
-  if combine_linkinds
-    flattened_net = ITensorNetworks.combine_linkinds(flattened_net)
-  end
-  return flattened_net
+#Just make this call to form network, rip out flatten
+function inner_network(x::AbstractITensorNetwork, y::AbstractITensorNetwork; kwargs...)
+  return BilinearFormNetwork(x, y; kwargs...)
 end
 
-function flatten_networks(
-  tn1::AbstractITensorNetwork,
-  tn2::AbstractITensorNetwork,
-  tn3::AbstractITensorNetwork,
-  tn_tail::AbstractITensorNetwork...;
-  kwargs...,
-)
-  return flatten_networks(flatten_networks(tn1, tn2; kwargs...), tn3, tn_tail...; kwargs...)
-end
-
-#Ideally this will dispatch to inner_network but this is a temporary fast version for now
-function norm_network(tn::AbstractITensorNetwork)
-  tnbra = rename_vertices(v -> (v, 1), data_graph(tn))
-  tndag = copy(tn)
-  for v in vertices(tndag)
-    setindex_preserve_graph!(tndag, dag(tndag[v]), v)
-  end
-  tnket = rename_vertices(v -> (v, 2), data_graph(prime(tndag; sites=[])))
-  tntn = ITensorNetwork(union(tnbra, tnket))
-  for v in vertices(tn)
-    if !isempty(commoninds(tntn[(v, 1)], tntn[(v, 2)]))
-      add_edge!(tntn, (v, 1) => (v, 2))
-    end
-  end
-  return tntn
-end
-
-# TODO: Use or replace with `flatten_networks`
 function inner_network(
-  tn1::AbstractITensorNetwork,
-  tn2::AbstractITensorNetwork;
-  map_bra_linkinds=sim,
-  combine_linkinds=false,
-  flatten=combine_linkinds,
-  kwargs...,
+  x::AbstractITensorNetwork, A::AbstractITensorNetwork, y::AbstractITensorNetwork; kwargs...
 )
-  @assert issetequal(vertices(tn1), vertices(tn2))
-  tn1 = map_bra_linkinds(tn1; sites=[])
-  inner_net = ⊗(dag(tn1), tn2; kwargs...)
-  if flatten
-    for v in vertices(tn1)
-      inner_net = contract(inner_net, (v, 2) => (v, 1); merged_vertex=v)
+  return BilinearFormNetwork(x, A, y; kwargs...)
+end
+
+inner_network(x::AbstractITensorNetwork; kwargs...) = inner_network(x, x; kwargs...)
+const norm_sqr_network = inner_network
+
+#Ideally this will not be necessary but this is a temporary fast version to avoid the overhead of `disjoint_union`
+function norm_sqr_network_fast(ψ::AbstractITensorNetwork)
+  ψbra = rename_vertices(v -> (v, 1), data_graph(ψ))
+  ψdag = copy(ψ)
+  for v in vertices(ψdag)
+    setindex_preserve_graph!(ψdag, dag(ψdag[v]), v)
+  end
+  ψket = rename_vertices(v -> (v, 2), data_graph(prime(ψdag; sites=[])))
+  ψψ = ITensorNetwork(union(ψbra, ψket))
+  for v in vertices(ψ)
+    if !isempty(commoninds(ψψ[(v, 1)], ψψ[(v, 2)]))
+      add_edge!(ψψ, (v, 1) => (v, 2))
     end
   end
-  if combine_linkinds
-    inner_net = ITensorNetworks.combine_linkinds(inner_net)
-  end
-  return inner_net
+  return ψψ
 end
-
-# TODO: Rename `inner`.
-function contract_inner(
-  ϕ::AbstractITensorNetwork,
-  ψ::AbstractITensorNetwork;
-  sequence=nothing,
-  contraction_sequence_kwargs=(;),
-)
-  tn = inner_network(ϕ, ψ; combine_linkinds=true)
-  if isnothing(sequence)
-    sequence = contraction_sequence(tn; contraction_sequence_kwargs...)
-  end
-  return contract(tn; sequence)[]
-end
-
-# TODO: rename `sqnorm` to match https://github.com/JuliaStats/Distances.jl,
-# or `norm_sqr` to match `LinearAlgebra.norm_sqr`
-norm_sqr(ψ::AbstractITensorNetwork; sequence) = contract_inner(ψ, ψ; sequence)
-
-norm_sqr_network(ψ::AbstractITensorNetwork; kwargs...) = inner_network(ψ, ψ; kwargs...)
 
 #
 # Printing
@@ -919,6 +858,8 @@ function add(tn1::AbstractITensorNetwork, tn2::AbstractITensorNetwork)
 end
 
 +(tn1::AbstractITensorNetwork, tn2::AbstractITensorNetwork) = add(tn1, tn2)
+
+ITensors.hasqns(tn::AbstractITensorNetwork) = all([hasqns(tn[v]) for v in vertices(tn)])
 
 ## # TODO: should this make sure that internal indices
 ## # don't clash?

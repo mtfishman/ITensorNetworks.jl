@@ -7,6 +7,8 @@ using NamedGraphs
 using Random
 using Test
 
+using ITensorNetworks: norm_sqr, neighbor_itensors
+
 @testset "ITensorNetwork tests" begin
   @testset "ITensorNetwork Basics" begin
     Random.seed!(1234)
@@ -146,26 +148,26 @@ using Test
 
   @testset "orthogonalize" begin
     tn = randomITensorNetwork(named_grid(4); link_space=2)
-    Z = contract(inner_network(tn, tn))[]
+    Z = norm_sqr(tn)
 
     tn_ortho = factorize(tn, 4 => 3)
 
     # TODO: Error here in arranging the edges. Arrange by hash?
-    Z̃ = contract(inner_network(tn_ortho, tn_ortho))[]
+    Z̃ = norm_sqr(tn_ortho)
     @test nv(tn_ortho) == 5
     @test nv(tn) == 4
     @test Z ≈ Z̃
 
     tn_ortho = orthogonalize(tn, 4 => 3)
-    Z̃ = contract(inner_network(tn_ortho, tn_ortho))[]
+    Z̃ = norm_sqr(tn_ortho)
     @test nv(tn_ortho) == 4
     @test nv(tn) == 4
     @test Z ≈ Z̃
 
     tn_ortho = orthogonalize(tn, 1)
-    Z̃ = contract(inner_network(tn_ortho, tn_ortho))[]
+    Z̃ = norm_sqr(tn_ortho)
     @test Z ≈ Z̃
-    Z̃ = contract(inner_network(tn_ortho, tn))[]
+    Z̃ = inner(tn_ortho, tn)
     @test Z ≈ Z̃
   end
 
@@ -202,7 +204,7 @@ using Test
     s = siteinds("S=1/2", g)
     ψ = ITensorNetwork(s; link_space=2)
 
-    nt = ITensorNetworks.neighbor_itensors(ψ, (1, 1))
+    nt = neighbor_itensors(ψ, (1, 1))
     @test length(nt) == 2
     @test all(map(hascommoninds(ψ[1, 1]), nt))
 
